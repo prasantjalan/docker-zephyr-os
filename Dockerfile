@@ -24,14 +24,14 @@ RUN apt-get install --quiet -y --no-install-recommends git cmake gperf \
 RUN pip3 install -U pip
 
 # Install west package required for zephyr git repo management
-RUN pip3 install --user west
+RUN pip3 install west
 
 # Install Additional requirements from zephyr repo
 ENV LC_CTYPE=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 RUN wget https://github.com/zephyrproject-rtos/zephyr/blob/master/scripts/requirements.txt
-#RUN pip3 install --no-cache-dir --user -r requirements.txt
-RUN pip3 install --no-cache-dir --user \
+#RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir \
 	wheel==0.30.0 \
 	breathe==4.9.1 \
 	sphinx==1.7.5 \
@@ -41,7 +41,6 @@ RUN pip3 install --no-cache-dir --user \
 	junit2html \
 	PyYAML>=3.13 \
 	ply==3.10 \
-	hub==2.0 \
 	gitlint \
 	pyelftools==0.24 \
 	pyocd==0.21.0 \
