@@ -56,21 +56,35 @@ RUN pip3 install --no-cache-dir \
 # Install additional utility packages
 RUN apt-get install -y curl dosfstools tree vim
 
-RUN id build 2>/dev/null || useradd --uid 1000 --create-home build
-RUN echo "build ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
-
 # Clean up apt temp files
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-USER build
-WORKDIR /home/build
 
 # Install Zephyr SDK
 RUN wget -q https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.10.2/zephyr-sdk-0.10.2-setup.run
 RUN chmod +x zephyr-sdk-0.10.2-setup.run
-RUN ./zephyr-sdk-0.10.2-setup.run -- -d /home/build/zephyr-sdk-0.10.2
-ENV ZEPHYR_TOOLCHAIN_VARIANT="zephyr"
-ENV ZEPHYR_SDK_INSTALL_DIR="/home/build/zephyr-sdk-0.10.2"
+RUN mkdir -p /opt/zephyr-sdk/
+RUN ./zephyr-sdk-0.10.2-setup.run -- -d /opt/zephyr-sdk
+
+# Install GNU ARM Toolchain 
+RUN wget -q --show-progress \
+	https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2?revision=bc2c96c0-14b5-4bb4-9f18-bceb4050fee7?product=GNU%20Arm%20Embedded%20Toolchain,64-bit,,Linux,7-2018-q2-update \
+	-O gcc-arm-none-eabi.tar.bz2
+RUN echo "299ebd3f1c2c90930d28ab82e5d8d6c0 gcc-arm-none-eabi.tar.bz2" > gcc-arm-none-eabi.tar.bz2.md5
+RUN md5sum -c gcc-arm-none-eabi.tar.bz2.md5
+RUN mkdir -p /opt/gcc-arm/
+RUN tar -xjpf gcc-arm-none-eabi.tar.bz2 --strip-components=1 -C /opt/gcc-arm/
+
+# Set default Environemnt
+#ENV ZEPHYR_TOOLCHAIN_VARIANT="zephyr"
+#ENV ZEPHYR_SDK_INSTALL_DIR="/opt/zephyr-sdk"
+ENV ZEPHYR_TOOLCHAIN_VARIANT="gnuarmemb"
+ENV GNUARMEMB_TOOLCHAIN_PATH="/opt/gcc-arm"
+
+USER build
+WORKDIR /home/build
+
+RUN id build 2>/dev/null || useradd --uid 1000 --create-home build
+RUN echo "build ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
 
 CMD "/bin/bash"
 
