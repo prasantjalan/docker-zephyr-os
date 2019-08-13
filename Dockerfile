@@ -56,6 +56,16 @@ RUN pip3 install --no-cache-dir \
 # Install additional utility packages
 RUN apt-get install -y curl dosfstools tree vim
 
+# Install Updated cmake
+RUN apt-get install --quiet -y coreutils # Required for sha256sum
+RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2-Linux-x86_64.tar.gz -O cmake.tar.gz
+RUN echo "f8cbec2abc433938bd9378b129d1d288bb33b8b5a277afe19644683af6e32a59 cmake.tar.gz" > cmake.tar.gz.txt
+RUN cat cmake.tar.gz.txt | sha256sum --check --status
+RUN mkdir -p /opt/cmake/
+RUN tar -xzpf cmake.tar.gz --strip-components=1 -C /opt/cmake/
+ENV PATH="/opt/cmake/bin:${PATH}"
+RUN rm cmake.tar.gz cmake.tar.gz.txt
+
 # Clean up apt temp files
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -64,6 +74,7 @@ RUN wget -q https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.10
 RUN chmod +x zephyr-sdk-0.10.2-setup.run
 RUN mkdir -p /opt/zephyr-sdk/
 RUN ./zephyr-sdk-0.10.2-setup.run -- -d /opt/zephyr-sdk
+RUN rm zephyr-sdk-0.10.2-setup.run
 
 # Install GNU ARM Toolchain 
 RUN wget -q --show-progress \
@@ -73,6 +84,7 @@ RUN echo "299ebd3f1c2c90930d28ab82e5d8d6c0 gcc-arm-none-eabi.tar.bz2" > gcc-arm-
 RUN md5sum -c gcc-arm-none-eabi.tar.bz2.md5
 RUN mkdir -p /opt/gcc-arm/
 RUN tar -xjpf gcc-arm-none-eabi.tar.bz2 --strip-components=1 -C /opt/gcc-arm/
+RUN rm gcc-arm-none-eabi.tar.bz2
 
 # Set default Environemnt
 #ENV ZEPHYR_TOOLCHAIN_VARIANT="zephyr"
