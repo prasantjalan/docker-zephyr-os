@@ -80,11 +80,10 @@ RUN tar -xjpf gcc-arm-none-eabi.tar.bz2 --strip-components=1 -C /opt/gcc-arm/
 ENV ZEPHYR_TOOLCHAIN_VARIANT="gnuarmemb"
 ENV GNUARMEMB_TOOLCHAIN_PATH="/opt/gcc-arm"
 
-USER build
-WORKDIR /home/build
-
 RUN id build 2>/dev/null || useradd --uid 1000 --create-home build
 RUN echo "build ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
+USER build
+WORKDIR /home/build
 
 CMD "/bin/bash"
 
