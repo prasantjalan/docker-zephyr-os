@@ -18,7 +18,7 @@ RUN apt -y install locales && \
 RUN apt-get install --quiet -y --no-install-recommends git cmake gperf \
 	ccache dfu-util device-tree-compiler wget \
 	python3-pip python3-setuptools python3-tk python3-wheel xz-utils file \
-	make gcc gcc-multilib 
+	make gcc gcc-multilib ninja-build
 
 # Upgrade pip
 RUN pip3 install -U pip
@@ -51,6 +51,7 @@ RUN pip3 install --no-cache-dir \
 	intelhex \
 	pytest \
 	gcovr
+RUN rm requirements.txt
 
 
 # Install additional utility packages
@@ -84,7 +85,7 @@ RUN echo "299ebd3f1c2c90930d28ab82e5d8d6c0 gcc-arm-none-eabi.tar.bz2" > gcc-arm-
 RUN md5sum -c gcc-arm-none-eabi.tar.bz2.md5
 RUN mkdir -p /opt/gcc-arm/
 RUN tar -xjpf gcc-arm-none-eabi.tar.bz2 --strip-components=1 -C /opt/gcc-arm/
-RUN rm gcc-arm-none-eabi.tar.bz2
+RUN rm gcc-arm-none-eabi.tar.bz2 gcc-arm-none-eabi.tar.bz2.md5
 
 # Set default Environemnt
 #ENV ZEPHYR_TOOLCHAIN_VARIANT="zephyr"
